@@ -29,8 +29,9 @@ struct bTreeNode* newBTreeNode(char newWord[], int wordSize, struct bTreeNode* p
 }
 
 void checkWord(char newWord[], int wordSize, struct bTreeNode *root){
-    if (strcmp(newWord, root->word) == 0){
-        root->count++;
+    if (strncmp(newWord, root->word, sizeof(char) * wordSize) == 0){
+        root->count = root->count + 1;
+        //printf("Word: %s %d\n", root->word, root->count);
     }
         //Before Alphabetically
     else if (strcmp(newWord, root->word)<0){
