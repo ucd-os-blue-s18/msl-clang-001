@@ -20,9 +20,11 @@ struct bTreeNode {
 //Binary Tree Constructor
 struct bTreeNode* newBTreeNode(char newWord[], int wordSize, struct bTreeNode* parent){
     struct bTreeNode * newNode = (struct bTreeNode*)malloc(sizeof(struct bTreeNode));
-    newNode->word = (char *) malloc(sizeof(char) * (wordSize));
-    strncpy(newNode->word, newWord, wordSize);
-    //newNode->word[wordSize] = '\0';
+    //Add one to wordSize to account for null terminator
+    newNode->word = (char *) malloc(sizeof(char) * (wordSize + 1));
+    strcpy(newNode->word, newWord);
+    //Add null terminator
+    newNode->word[wordSize] = '\0';
     newNode->count = 1;
     newNode->parentPtr = parent;
     newNode->leftChildPtr = NULL;
@@ -31,27 +33,27 @@ struct bTreeNode* newBTreeNode(char newWord[], int wordSize, struct bTreeNode* p
 }
 
 //Compares new word and recursively moves through tree and creates new node if not found
-void checkWord(char newWord[], int wordSize, struct bTreeNode *root){
+void insertIntoTree(char *newWord, int wordSize, struct bTreeNode *node){
     //word already exists in tree
-    if (strncmp(newWord, root->word, sizeof(char) * wordSize) == 0){
-        root->count = root->count + 1;
+    if (strcmp(newWord, node->word) == 0){
+        node->count = node->count + 1;
     }
         //Before Alphabetically
-    else if (strcmp(newWord, root->word)<0){
-        if(root->leftChildPtr == NULL){
-            root->leftChildPtr = newBTreeNode(newWord, wordSize, root);
+    else if (strcmp(newWord, node->word) < 0){
+        if(node->leftChildPtr == NULL){
+            node->leftChildPtr = newBTreeNode(newWord, wordSize, node);
         }
         else{
-            checkWord(newWord, wordSize, root->leftChildPtr);
+            insertIntoTree(newWord, wordSize, node->leftChildPtr);
         }
     }
         //After Alphabetically
     else {
-        if(root->rightChildPtr == NULL){
-            root->rightChildPtr = newBTreeNode(newWord, wordSize, root);
+        if(node->rightChildPtr == NULL){
+            node->rightChildPtr = newBTreeNode(newWord, wordSize, node);
         }
         else{
-        checkWord(newWord, wordSize, root->rightChildPtr);
+            insertIntoTree(newWord, wordSize, node->rightChildPtr);
         }
     }
 }
@@ -95,48 +97,38 @@ int main(int argc, char **argv) {
     }
 
     //create buffer
-    int size = 30;
+    const int size = 30;
     char buffer[size];
     clearBuffer(buffer, size);
 
     int c;
-    int count = 0;
+    int position = 0;
     struct bTreeNode* root = NULL;
 
     //read file
-    while((c = fgetc(fPointer)) != EOF){
-        buffer[count] = c;
-        count ++;
-        if (c == ' '){
-            if  (root == NULL){
-                buffer[count] = '\0';
-                root = newBTreeNode(buffer, count, NULL);
-            }
-            else{
-                buffer[count] = '\0';
-                checkWord(buffer, count, root);
-            }
-            count = 0;
-            clearBuffer(buffer, size);
+    do {
+        c = fgetc(fPointer);
+        if (c == ' ' || c == EOF){
+            buffer[position] = '\0';
 
+            if (root == NULL){
+                root = newBTreeNode(buffer, position, NULL);
+            }
+            else {
+                insertIntoTree(buffer, position, root);
+            }
+            position = 0;
+            clearBuffer(buffer, size);
+        }
+        else {
+            buffer[position] = c;
+            position++;
         }
 
-    }
-    if  (root == NULL){
-        buffer[count-1] = '\0';
-        root = newBTreeNode(buffer, count, NULL);
-    }
-    else{
-        buffer[count-1] = '\0';
-        checkWord(buffer, count, root);
-    }
-    if (feof(fPointer)){
-        printf("End of file.");
-    }
-
-
+    } while(c != EOF);
     fclose(fPointer);
 
+    // Generate output file
     char * fileSuffix = strpbrk(fileName, "0");
     char outputFileName[50] = "myoutput\0";
     strcat(outputFileName, fileSuffix);
