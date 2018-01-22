@@ -17,6 +17,7 @@ struct bTreeNode {
     struct bTreeNode *rightChildPtr;
 };
 
+//Binary Tree Constructor
 struct bTreeNode* newBTreeNode(char newWord[], int wordSize, struct bTreeNode* parent){
     struct bTreeNode * newNode = (struct bTreeNode*)malloc(sizeof(struct bTreeNode));
     newNode->word = (char *) malloc(sizeof(char) * (wordSize));
@@ -26,21 +27,19 @@ struct bTreeNode* newBTreeNode(char newWord[], int wordSize, struct bTreeNode* p
     newNode->parentPtr = parent;
     newNode->leftChildPtr = NULL;
     newNode->rightChildPtr = NULL;
-    printf(newNode->word);
-    printf("\n");
     return newNode;
 }
 
+//Compares new word and recursively moves through tree and creates new node if not found
 void checkWord(char newWord[], int wordSize, struct bTreeNode *root){
+    //word already exists in tree
     if (strncmp(newWord, root->word, sizeof(char) * wordSize) == 0){
         root->count = root->count + 1;
-        //printf("Word: %s %d\n", root->word, root->count);
     }
         //Before Alphabetically
     else if (strcmp(newWord, root->word)<0){
         if(root->leftChildPtr == NULL){
             root->leftChildPtr = newBTreeNode(newWord, wordSize, root);
-            //printf("New Left Word: %s \n", newWord);
         }
         else{
             checkWord(newWord, wordSize, root->leftChildPtr);
@@ -50,7 +49,6 @@ void checkWord(char newWord[], int wordSize, struct bTreeNode *root){
     else {
         if(root->rightChildPtr == NULL){
             root->rightChildPtr = newBTreeNode(newWord, wordSize, root);
-            //printf("New Right Word: %s \n", newWord);
         }
         else{
         checkWord(newWord, wordSize, root->rightChildPtr);
@@ -64,7 +62,6 @@ void inOrderTraversal(struct bTreeNode * node) {
     }
 
     FILE * outputFile = fopen("test_output.txt", "ab");
-    //printf("%s: %i\r\n", node->word, node->count);
     fprintf(outputFile, "%s: %i\r\n", node->word, node->count);
     fclose(outputFile);
 
@@ -91,7 +88,10 @@ void destroyTree(struct bTreeNode * node) {
 
 int main(int argc, char **argv) {
     //Open file and check for success
-    FILE* fPointer = fopen("input02.txt", "r");
+    char fileName[50];
+    printf("Please enter file name\n");
+    scanf("%s", fileName);
+    FILE* fPointer = fopen(fileName, "r");
     if(!fPointer){
         printf("Read file Error!");
         return EXIT_FAILURE;
@@ -101,6 +101,7 @@ int main(int argc, char **argv) {
     int size = 30;
     char buffer[size];
     clearBuffer(buffer, size);
+
     int c;
     int count = 0;
     struct bTreeNode* root = NULL;
@@ -110,7 +111,6 @@ int main(int argc, char **argv) {
         buffer[count] = c;
         count ++;
         if (c == ' '){
-            //printf("%s\n", buffer);
             if  (root == NULL){
                 buffer[count] = '\0';
                 root = newBTreeNode(buffer, count, NULL);
@@ -125,9 +125,6 @@ int main(int argc, char **argv) {
         }
 
     }
-    printf("%s\n", buffer);
-    //buffer[count] = c;
-    //count ++;
     if  (root == NULL){
         buffer[count-1] = '\0';
         root = newBTreeNode(buffer, count, NULL);
