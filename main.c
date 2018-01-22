@@ -56,17 +56,15 @@ void checkWord(char newWord[], int wordSize, struct bTreeNode *root){
     }
 }
 
-void inOrderTraversal(struct bTreeNode * node) {
+void inOrderTraversal(struct bTreeNode * node, FILE * outputFile) {
     if(node->leftChildPtr) {
-        inOrderTraversal(node->leftChildPtr);
+        inOrderTraversal(node->leftChildPtr, outputFile);
     }
 
-    FILE * outputFile = fopen("test_output.txt", "ab");
     fprintf(outputFile, "%s: %i\r\n", node->word, node->count);
-    fclose(outputFile);
 
     if(node->rightChildPtr) {
-        inOrderTraversal(node->rightChildPtr);
+        inOrderTraversal(node->rightChildPtr, outputFile);
     }
 
     return;
@@ -89,8 +87,7 @@ void destroyTree(struct bTreeNode * node) {
 int main(int argc, char **argv) {
     //Open file and check for success
     char fileName[50];
-    printf("Please enter file name\n");
-    scanf("%s", fileName);
+    sprintf(fileName, "%s", argv[1]);
     FILE* fPointer = fopen(fileName, "r");
     if(!fPointer){
         printf("Read file Error!");
@@ -140,9 +137,14 @@ int main(int argc, char **argv) {
 
     fclose(fPointer);
 
-    FILE * outputFile = fopen("test_output.txt", "wb");
+    char * fileSuffix = strpbrk(fileName, "0");
+    char outputFileName[50] = "myoutput\0";
+    strcat(outputFileName, fileSuffix);
+    FILE * outputFile = fopen(outputFileName, "wb");
+    inOrderTraversal(root, outputFile);
     fclose(outputFile);
-    inOrderTraversal(root);
+
     destroyTree(root);
+
     exit(0);
 }
