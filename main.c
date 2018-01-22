@@ -75,6 +75,20 @@ void inOrderTraversal(struct bTreeNode * node) {
     return;
 }
 
+
+void destroyTree(struct bTreeNode * node) {
+    if(node->leftChildPtr) {
+        destroyTree(node->leftChildPtr);
+    }
+
+    if(node->rightChildPtr) {
+        destroyTree(node->rightChildPtr);
+    }
+
+    free(node->word);
+    free(node);
+}
+
 int main(int argc, char **argv) {
     //Open file and check for success
     FILE* fPointer = fopen("input02.txt", "r");
@@ -132,5 +146,6 @@ int main(int argc, char **argv) {
     FILE * outputFile = fopen("test_output.txt", "wb");
     fclose(outputFile);
     inOrderTraversal(root);
+    destroyTree(root);
     exit(0);
 }
