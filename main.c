@@ -19,12 +19,15 @@ struct bTreeNode {
 
 struct bTreeNode* newBTreeNode(char newWord[], int wordSize, struct bTreeNode* parent){
     struct bTreeNode * newNode = (struct bTreeNode*)malloc(sizeof(struct bTreeNode));
-    newNode->word = (char *) malloc(sizeof(char) * wordSize);
+    newNode->word = (char *) malloc(sizeof(char) * (wordSize));
     strncpy(newNode->word, newWord, wordSize);
+    //newNode->word[wordSize] = '\0';
     newNode->count = 1;
     newNode->parentPtr = parent;
     newNode->leftChildPtr = NULL;
     newNode->rightChildPtr = NULL;
+    printf(newNode->word);
+    printf("\n");
     return newNode;
 }
 
@@ -61,6 +64,7 @@ void inOrderTraversal(struct bTreeNode * node) {
     }
 
     FILE * outputFile = fopen("test_output.txt", "ab");
+    //printf("%s: %i\r\n", node->word, node->count);
     fprintf(outputFile, "%s: %i\r\n", node->word, node->count);
     fclose(outputFile);
 
@@ -94,16 +98,29 @@ int main(int argc, char **argv) {
         if (c == ' '){
             //printf("%s\n", buffer);
             if  (root == NULL){
-                root = newBTreeNode(buffer, count - 1, NULL);
+                buffer[count] = '\0';
+                root = newBTreeNode(buffer, count, NULL);
             }
             else{
-                checkWord(buffer, count - 1, root);
+                buffer[count] = '\0';
+                checkWord(buffer, count, root);
             }
             count = 0;
             clearBuffer(buffer, size);
 
         }
 
+    }
+    printf("%s\n", buffer);
+    //buffer[count] = c;
+    //count ++;
+    if  (root == NULL){
+        buffer[count-1] = '\0';
+        root = newBTreeNode(buffer, count, NULL);
+    }
+    else{
+        buffer[count-1] = '\0';
+        checkWord(buffer, count, root);
     }
     if (feof(fPointer)){
         printf("End of file.");
@@ -112,6 +129,8 @@ int main(int argc, char **argv) {
 
     fclose(fPointer);
 
+    FILE * outputFile = fopen("test_output.txt", "wb");
+    fclose(outputFile);
     inOrderTraversal(root);
     exit(0);
 }
