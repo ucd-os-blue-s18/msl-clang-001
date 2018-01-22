@@ -55,10 +55,23 @@ void checkWord(char newWord[], int wordSize, struct bTreeNode *root){
     }
 }
 
+void inOrderTraversal(struct bTreeNode * node) {
+    if(node->leftChildPtr) {
+        inOrderTraversal(node->leftChildPtr);
+    }
+
+    FILE * outputFile = fopen("test_output.txt", "ab");
+    fprintf(outputFile, "%s: %i\r\n", node->word, node->count);
+    fclose(outputFile);
+
+    if(node->rightChildPtr) {
+        inOrderTraversal(node->rightChildPtr);
+    }
+
+    return;
+}
+
 int main(int argc, char **argv) {
-
-
-
     //Open file and check for success
     FILE* fPointer = fopen("input02.txt", "r");
     if(!fPointer){
@@ -98,5 +111,7 @@ int main(int argc, char **argv) {
 
 
     fclose(fPointer);
+
+    inOrderTraversal(root);
     exit(0);
 }
