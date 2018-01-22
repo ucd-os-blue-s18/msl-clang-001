@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 void clearBuffer(char buf[], int bufSize){
     for (int i = 0; i < bufSize; ++i) {
@@ -16,15 +17,41 @@ struct bTreeNode {
     struct bTreeNode *rightChildPtr;
 };
 
-struct bTreeNode* newBTreeNode(char newWord[], int wordSize){
+struct bTreeNode* newBTreeNode(char newWord[], int wordSize, struct bTreeNode* parent){
     struct bTreeNode * newNode = (struct bTreeNode*)malloc(sizeof(struct bTreeNode));
     newNode->word = (char *) malloc(sizeof(char) * wordSize);
-    newNode->word = newWord;
+    strncpy(newNode->word, newWord, wordSize);
     newNode->count = 1;
-    newNode->parentPtr = NULL;
+    newNode->parentPtr = parent;
     newNode->leftChildPtr = NULL;
     newNode->rightChildPtr = NULL;
     return newNode;
+}
+
+void checkWord(char newWord[], int wordSize, struct bTreeNode *root){
+    if (strcmp(newWord, root->word) == 0){
+        root->count++;
+    }
+        //Before Alphabetically
+    else if (strcmp(newWord, root->word)<0){
+        if(root->leftChildPtr == NULL){
+            root->leftChildPtr = newBTreeNode(newWord, wordSize, root);
+            //printf("New Left Word: %s \n", newWord);
+        }
+        else{
+            checkWord(newWord, wordSize, root->leftChildPtr);
+        }
+    }
+        //After Alphabetically
+    else {
+        if(root->rightChildPtr == NULL){
+            root->rightChildPtr = newBTreeNode(newWord, wordSize, root);
+            //printf("New Right Word: %s \n", newWord);
+        }
+        else{
+        checkWord(newWord, wordSize, root->rightChildPtr);
+        }
+    }
 }
 
 int main(int argc, char **argv) {
@@ -44,13 +71,20 @@ int main(int argc, char **argv) {
     clearBuffer(buffer, size);
     int c;
     int count = 0;
+    struct bTreeNode* root = NULL;
 
     //read file
     while((c = fgetc(fPointer)) != EOF){
         buffer[count] = c;
         count ++;
         if (c == ' '){
-            printf("%s\n", buffer);
+            //printf("%s\n", buffer);
+            if  (root == NULL){
+                root = newBTreeNode(buffer, count - 1, NULL);
+            }
+            else{
+                checkWord(buffer, count - 1, root);
+            }
             count = 0;
             clearBuffer(buffer, size);
 
